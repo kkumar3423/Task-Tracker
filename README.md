@@ -1,5 +1,8 @@
 # Task-Tracker
-Task Tracker is a comprehensive and intuitive application designed to enhance productivity by streamlining task management. With advanced features like persistent storage, advanced filtering and sorting, and a calendar view, it caters to both individual users and teams.
+
+A simple and interactive task tracker application built with React. This app allows users to manage their tasks with various features, such as categorization, priority levels, due dates, and a drag-and-drop functionality for task reordering.
+
+---
 
 ## Table of Contents
 
@@ -8,7 +11,6 @@ Task Tracker is a comprehensive and intuitive application designed to enhance pr
 - [Setup and Installation](#setup-and-installation)  
 - [Usage](#usage)  
 - [Code](#Code)  
-- [Challenges and Solutions](#challenges-and-solutions)  
 - [Contributing](#contributing)  
 - [License](#license)
 
@@ -16,222 +18,300 @@ Task Tracker is a comprehensive and intuitive application designed to enhance pr
 
 ## **Features**
 
-### **1. Progress Bar**
-- It shows the task progress that how far the tasks are completed.
-
-### **2. Categories and Sorting**
-- Users can filter tasks by:
-  - Priority (High, Medium, Low)  
-  - Status (Completed, Pending)  
-  - Due Dates (Upcoming, Overdue)  
-- Sort tasks by creation date, due date, or priority.
-### **3. Delete**
-- If task is finished.Users can delete using delete option.
-### **4. Drag and Drop**  
-- Supports drag-and-drop task rescheduling.  
-- Striks off the completed task and shows overdue tasks.
-
-### **4. User-Friendly Interface**
-- A modern, responsive design ensures seamless use on desktops and mobile devices.  
-- Dark mode and light mode support.
+- **Add Tasks**: Create tasks with title, priority, due date, and category.
+- **Task Management**: Mark tasks as completed, and delete them.
+- **Drag-and-Drop**: Reorder tasks using drag-and-drop functionality.
+- **Task Statistics**: View total and completed tasks with a progress bar.
+- **Categorization**: Organize tasks by category (General, Work, Personal).
+- **Responsive Design**: The application is fully responsive and works across different devices.
 
 ---
 
 ## **Technologies Used**
 
-### **Frontend**
-- **React.js**: For building the interactive user interface.  
-- **Tailwind CSS**: For styling and layout.
-- **React-dnd**: for building Drag and drop tasks.  
+### Frontend
+1. **React**: Used to build the user interface and manage the app's components.
+2. **React DnD**: Used to enable drag-and-drop functionality for reordering tasks.
+3. **HTML5 Drag-and-Drop API**: Provides the native browser support for drag-and-drop behavior.
+4. **CSS**: Used for styling the app (layout, colors, fonts) and making it responsive on different devices.
+5. **JavaScript (ES6+)**: Used for writing the app's logic, such as handling state changes and user interactions.
 
-### **Backend**
-- **Node.js**: For server-side logic.  
-- **Express.js**: For building RESTful APIs.
- 
-## **Setup and Installation**
+### Data Management
+1. **React State**: Tasks and their details (like title, priority, etc.) are stored in React’s local state using the `useState` hook.
+2. **No Database**: Data is not saved to an external database, so if the page is refreshed, the data is lost.
 
-### **Prerequisites**
-- Node.js (v14+)
-- MongoDB installed locally or access to MongoDB Atlas
-- Git for version control
+---
+
 
 ### **Installation Steps**
 
-1. Clone the repository:  
-   ```bash
-   git clone https://github.com/yourusername/task-tracker.git
-   cd task-tracker
-   ```
+To get started with this project locally, follow these steps:
 
-2. Install dependencies:  
-   ```bash
-   npm install
-   ```
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/your-username/task-tracker.git
+    ```
 
-3. Navigate to the source folder and install dependencies:  
-   ```bash
-   cd source
-   npm install
-   ```
+2. Navigate into the project directory:
+    ```bash
+    cd task-tracker
+    ```
 
-4. Set up environment variables:
-   - Create a `.env` file in the `server` directory.
-   - Add the following:  
-     ```env
-     DB_URI=your_mongodb_connection_string
-     JWT_SECRET=your_jwt_secret
-     PORT=5000
-     ```
+3. Install the necessary dependencies:
+    ```bash
+    npm install
+    ```
 
-5. Start the backend server:  
-   ```bash
-   npm install react-calendar
-   ```
+4. Start the development server:
+    ```bash
+    npm start
+    ```
 
-6. Start the frontend:  
-   ```bash
-   npm start
-   ```
+5. Open your browser and go to `http://localhost:3000` to see the app in action.
 
-7. Open the application in your browser at:  
-   `http://localhost:3000`
+---
+
+![Screenshot (138)](https://github.com/user-attachments/assets/2ed21947-eeec-4ebe-a883-aa069da36517)
+
 
 ---
 
 ## **Usage**
 
-### **1. Creating Tasks**
-- Add tasks by providing a title, description, due date, and priority.
+Once the application is running, you can:
 
-### **2. Viewing Tasks**
-- View all tasks on the dashboard.
+- **Add a Task**: Fill out the form with a title, priority, due date, and category, then click the "Add Task" button.
+- **Manage Tasks**: Click on a task to toggle its completion status. You can also delete tasks by clicking the "Delete" button.
+- **Reorder Tasks**: Use the drag-and-drop feature to reorder tasks.
+- **View Statistics**: The task tracker will display the total number of tasks and how many are completed.
+ 
+---
 
-### **3. Editing/Deleting Tasks**
-- Update task details or delete tasks directly from the interface.
+## **Code**
 
-### **4. Filtering and Sorting**
-- Use filters to narrow down tasks based on priority, status, or due dates.
+Here is an overview of the main components:
 
-### **5. Drag and Drop tasks**
-- Drag and drop tasks to reschedule them.
-### **6. Progress Bar**
-- Shows the progress of tasks 
+### TaskItem Component
+
+This component renders individual tasks and allows interaction like marking as completed, deleting, and dragging.
+
+```jsx
+function TaskItem({ task, index, moveTask, onToggle, onDelete }) {
+  const categoryClass = `category-${task.category.toLowerCase()}`;
+
+  const [, ref] = useDrag({
+    type: 'TASK',
+    item: { index },
+  });
+
+  const [, drop] = useDrop({
+    accept: 'TASK',
+    hover: (draggedItem) => {
+      if (draggedItem.index !== index) {
+        moveTask(draggedItem.index, index);
+        draggedItem.index = index;
+      }
+    },
+  });
+
+  return (
+    <div
+      ref={(node) => ref(drop(node))}
+      className={`task-item ${task.completed ? 'completed' : ''} ${categoryClass}`}
+      onClick={onToggle}
+    >
+      <h3>{task.title}</h3>
+      <p>Priority: {task.priority}</p>
+      {task.dueDate && <p>Due Date: {task.dueDate}</p>}
+      <p className="category">Category: {task.category}</p>
+      <button onClick={(e) => { e.stopPropagation(); onDelete(); }}>Delete</button>
+    </div>
+  );
+}
+```
+
+### App Component
+
+This is the main component where tasks are managed and rendered.
+
+```jsx
+export default function App() {
+  const [tasks, setTasks] = useState([]);
+
+  const addTask = (task) => {
+    const newTask = { ...task, id: tasks.length + 1, completed: false };
+    setTasks([...tasks, newTask]);
+  };
+
+  const toggleTask = (taskId) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === taskId ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const deleteTask = (taskId) => {
+    setTasks(tasks.filter((task) => task.id !== taskId));
+  };
+
+  const moveTask = (fromIndex, toIndex) => {
+    const updatedTasks = [...tasks];
+    const [movedTask] = updatedTasks.splice(fromIndex, 1);
+    updatedTasks.splice(toIndex, 0, movedTask);
+    setTasks(updatedTasks);
+  };
+
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const totalTasks = tasks.length;
+  const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <div className="app">
+        <h1>Task Tracker</h1>
+        <div className="progress-bar">
+          <div
+            className="progress-bar-fill"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+        <Statistics totalTasks={totalTasks} completedTasks={completedTasks} />
+        <AddTaskForm onAdd={addTask} />
+        <div className="task-list">
+          {tasks.map((task, index) => (
+            <TaskItem
+              key={task.id}
+              index={index}
+              task={task}
+              moveTask={moveTask}
+              onToggle={() => toggleTask(task.id)}
+              onDelete={() => deleteTask(task.id)}
+            />
+          ))}
+        </div>
+      </div>
+    </DndProvider>
+  );
+}
+```
+
+Certainly! Here's the **Setup and Installation** section formatted in the syntax for your README file:
 
 ---
 
-## **code**
+### Setup and Installation
 
-### 1. **Calendar Integration**  
-This snippet integrates a calendar view, allowing users to view tasks by date.
+To get started with this project, follow the steps below to set it up on your local machine.
 
-### 2. **Adding Tasks**  
-This snippet provides adding tasks for priority, status, and search, with real-time updates.
-''jsx
-import React, { useState, useCallback, useRef } from 'react';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import './style.css';
+#### Prerequisites
 
-function AddTaskForm({ onAdd, categories }) {
-  const [formData, setFormData] = useState({
-    title: '',
-    priority: 'Medium',
-    dueDate: '',
-    category: categories[0]
-  });
+Before you begin, ensure you have the following installed on your machine:
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+- **Node.js** (v14.x or later)
+- **npm** (comes with Node.js)
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.title.trim()) {
-      alert('Please enter a task title');
-      return;
-    }
-    onAdd(formData);
-    setFormData({
-      title: '',
-      priority: 'Medium',
-      dueDate: '',
-      category: categories[0]
-    });
-  };
+#### Steps
 
-  return (
-    <form onSubmit={handleSubmit} className="add-task-form">
-      <div className="form-group">
-        <label htmlFor="title">
-          Task Title: <span className="required">*</span>
-        </label>
-        <input
-          id="title"
-          name="title"
-          type="text"
-          value={formData.title}
-          onChange={handleChange}
-          placeholder="Enter task title"
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="priority">Priority Level:</label>
-        <select
-          id="priority"
-          name="priority"
-          value={formData.priority}
-          onChange={handleChange}
-        >
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-      </div>
-      <div className="form-group">
-        <label htmlFor="dueDate">Due Date:</label>
-        <input
-          id="dueDate"
-          name="dueDate"
-          type="date"
-          value={formData.dueDate}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="category">Category:</label>
-        <select
-          id="category"
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-        >
-          {categories.map((category, index) => (
-            <option key={index} value={category}>{category}</option>
-          ))}
-        </select>
-      </div>
-      <button type="submit">Add Task</button>
-    </form>
-  );
-}
+1. **Clone the Repository**  
+   First, clone this repository to your local machine using the following command:
 
-  
+   ```bash
+   git clone https://github.com/yourusername/your-project-name.git
+   ```
 
+2. **Navigate to the Project Folder**  
+   Move into the project directory:
+
+   ```bash
+   cd your-project-name
+   ```
+
+3. **Install Dependencies**  
+   Install the required dependencies using npm:
+
+   ```bash
+   npm install
+   ```
+
+4. **Run the Application**  
+   Start the development server:
+
+   ```bash
+   npm start
+   ```
+
+   The app should now be running at [http://localhost:3000](http://localhost:3000).
+
+5. **Open the App in Your Browser**  
+   Open your browser and go to [http://localhost:3000](http://localhost:3000) to view the application.
+
+---
 
 ## **Contributing**  
 
-To contribute:
-1. Fork the repository.  
-2. Create a new branch (`git checkout -b feature-name`).  
-3. Make your changes and commit (`git commit -m "Add feature"`)  
-4. Push to your branch (`git push origin feature-name`).  
-5. Open a pull request.
+Certainly! Here's a **Contributing** section that you can include in your README file:
+
+---
+
+### Contributing
+
+We welcome contributions to this project! If you would like to contribute, please follow these steps:
+
+#### How to Contribute
+
+1. **Fork the Repository**  
+   Start by forking the repository to your own GitHub account:
+   
+   - Go to the repository page on GitHub.
+   - Click on the **Fork** button at the top-right of the page.
+
+2. **Clone Your Fork**  
+   Clone the forked repository to your local machine:
+
+   ```bash
+   git clone https://github.com/yourusername/your-forked-repo.git
+   ```
+
+3. **Create a New Branch**  
+   It's best practice to create a new branch for your feature or fix:
+
+   ```bash
+   git checkout -b your-feature-branch
+   ```
+
+4. **Make Your Changes**  
+   Make the necessary changes or improvements. Ensure that your code adheres to the project's coding style and best practices.
+
+5. **Commit Your Changes**  
+   After making the changes, commit them with a clear and concise commit message:
+
+   ```bash
+   git add .
+   git commit -m "Add your commit message"
+   ```
+
+6. **Push Your Changes**  
+   Push your changes to your forked repository:
+
+   ```bash
+   git push origin your-feature-branch
+   ```
+
+7. **Create a Pull Request**  
+   Go to the original repository and create a pull request (PR) from your branch. Describe the changes you have made and why they are necessary.
+
+---
 
 ## **Credits**
 
-- This project is an extension of OCUFrontendWebDev repo's Task Tracker app.
-- I used the Chatgpt for implementing some changes in the code and the Documentation.
+- This project is an enhancement of the Task Tracker app from the OCUFrontendWebDev repository.
+- I leveraged ChatGPT to assist with code modifications and to improve the documentation.
+
+---
+
+## **License**
+
+This project is licensed under the MIT License - see the [License](License) file for details.
+
+
